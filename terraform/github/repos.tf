@@ -1,5 +1,6 @@
 locals {
-  # kind matches toil.json in each repo. checks lists the status checks a PR must pass.
+  # kind matches toil.json in each repo. checks lists the status checks a PR must
+  # pass, besides the common_checks in rulesets.tf.
   repos = {
     agents = {
       team        = "platform"

@@ -2,6 +2,10 @@ locals {
   # App ID of GitHub Actions. Tying required checks to it stops anything else
   # from satisfying them with a commit status of the same name.
   github_actions_app_id = 15368
+
+  # Every PR in every repo needs these, on top of the repo's own checks.
+  # pr-metrics fails until the approver writes "Human minutes:" in the PR.
+  common_checks = ["pr-metrics / human-minutes"]
 }
 
 resource "github_repository_ruleset" "main" {
@@ -42,19 +46,15 @@ resource "github_repository_ruleset" "main" {
       allowed_merge_methods             = ["squash"]
     }
 
-    dynamic "required_status_checks" {
-      for_each = length(each.value.checks) > 0 ? [each.value.checks] : []
+    required_status_checks {
+      strict_required_status_checks_policy = false
 
-      content {
-        strict_required_status_checks_policy = false
+      dynamic "required_check" {
+        for_each = concat(local.common_checks, each.value.checks)
 
-        dynamic "required_check" {
-          for_each = required_status_checks.value
-
-          content {
-            context        = required_check.value
-            integration_id = local.github_actions_app_id
-          }
+        content {
+          context        = required_check.value
+          integration_id = local.github_actions_app_id
         }
       }
     }
