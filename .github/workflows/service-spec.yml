@@ -1,0 +1,45 @@
+# Reusable: validates toil.json and every service.yaml in the calling repo
+# against the contract in toil-lab/agents. App repos call it from their own
+# service-spec.yml, and the required check is "service-spec / validate".
+name: service-spec
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: toil-lab/agents
+          ref: main
+          path: .toil-agents
+          sparse-checkout: contract
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - run: pip install "pyyaml>=6,<7" "jsonschema>=4.23,<5"
+
+      - name: Validate toil.json
+        run: python .toil-agents/contract/validate.py --schema .toil-agents/contract/toil.schema.json toil.json
+
+      - name: Validate service.yaml files
+        run: |
+          files=$(git ls-files '*service.yaml')
+          if [ -z "$files" ]; then
+            echo "No service.yaml files in this repo yet."
+            exit 0
+          fi
+          python .toil-agents/contract/validate.py $files

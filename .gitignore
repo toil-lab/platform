@@ -1,0 +1,15 @@
+# Terraform state can hold plain-text secrets. It stays local until the GCS
+# backend in phase 5. Commit .terraform.lock.hcl.
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+*.tfplan
+*.tfvars
+
+kubeconfig*
+*.kubeconfig
+.env
+.env.*
+.claude/settings.local.json
+__pycache__/
