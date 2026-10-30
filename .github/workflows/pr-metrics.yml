@@ -1,0 +1,28 @@
+# Reusable: fails until the PR description has a whole number after
+# "Human minutes:". The approver writes it before approving; agents leave it
+# blank. Every repo calls this from its own pr-metrics.yml on pull_request
+# events, including edits to the description, and the required check is
+# "pr-metrics / human-minutes".
+name: pr-metrics
+
+on:
+  workflow_call:
+
+permissions: {}
+
+jobs:
+  human-minutes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Human minutes is filled in
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          line=$(printf '%s\n' "$BODY" | tr -d '\r' | grep -E '^Human minutes:' | head -n 1 || true)
+          if printf '%s\n' "$line" | grep -Eq '^Human minutes:[[:space:]]*[0-9]+[[:space:]]*$'; then
+            echo "$line"
+            exit 0
+          fi
+          echo "::error::Write a whole number after 'Human minutes:' in the PR description before approving. The approver fills it in; agents leave it blank. Editing the description reruns this check."
+          exit 1

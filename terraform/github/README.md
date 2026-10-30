@@ -8,7 +8,7 @@ manage Projects; `scripts/create_board.py` does it).
 |---|---|
 | `repos.tf` | The five repos, their merge settings, and secret scanning |
 | `teams.tf` | `platform`, `checks`, and `status` teams, their members, and repo access |
-| `rulesets.tf` | One ruleset per repo on the default branch: PR only, code owner approval, required checks |
+| `rulesets.tf` | One ruleset per repo on the default branch: PR only, code owner approval, required checks (`pr-metrics / human-minutes` on every repo plus its own) |
 | `labels.tf` | The same label set in every repo with issues |
 | `actions.tf` | Which actions may run, and read-only workflow tokens that can't approve PRs |
 

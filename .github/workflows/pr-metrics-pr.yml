@@ -1,0 +1,11 @@
+name: pr-metrics
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions: {}
+
+jobs:
+  pr-metrics:
+    uses: ./.github/workflows/pr-metrics.yml
